@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cool Shutter</title>
+    <link rel="stylesheet" href="./src/styles/main.css">
+</head>
+<body>
+    <div id="menu">
+        <h1>Cool Shooter</h1>
+        <button id="start-button">Начать игру</button>
+    </div>
+
+    <div id="game-container">
+        <div id="level-info">
+            <div id="level-text">Уровень: 1</div>
+            <div id="kills-text">Убито: 0 / 0</div>
+        </div>
+        <div id="pause-overlay" class="pause-overlay"></div>
+        <div id="pause-text" class="pause-text">Пауза</div>
+        <div id="game-over-message" class="game-over-text">Игра окончена!</div>
+        <div id="upgrade-menu">
+            <h2>Уровень пройден! Выберите улучшение:</h2>
+            <button id="upgrade-damage">Увеличить урон</button>
+            <button id="upgrade-health">Увеличить макс. здоровье</button>
+            <button id="upgrade-dash">Увеличить длительность уворота</button>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

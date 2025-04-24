@@ -95,7 +95,7 @@ export class GameScene extends Scene {
     private spawnEnemy(): void {
         const x = Phaser.Math.Between(0, this.game.canvas.width);
         const y = Phaser.Math.Between(0, this.game.canvas.height);
-        const enemy = new Enemy(this, x, y, 'enemy');
+        const enemy = new Enemy(this, x, y, 'enemy', this.player);
         this.enemies.push(enemy);
     }
 } 

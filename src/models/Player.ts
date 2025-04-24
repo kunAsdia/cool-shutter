@@ -102,14 +102,16 @@ export class Player extends Entity {
             this.sprite.y,
             targetX,
             targetY,
-            this.damage
+            this.damage,
+            this
         );
         this.projectiles.push(projectile);
     }
 
     protected die(): void {
         // Логика смерти игрока
-        this.scene.scene.start('GameOver');
+        this.scene.scene.stop('GameScene');
+        this.scene.scene.start('GameOverScene');
     }
 
     public update(): void {

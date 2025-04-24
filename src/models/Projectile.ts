@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { Player } from './Player';
 
 export class Projectile {
     private scene: Scene;
@@ -6,6 +7,8 @@ export class Projectile {
     private speed: number;
     private damage: number;
     private destroyed: boolean;
+    private player: Player;
+    private maxDistance: number = 500; // Максимальное расстояние от игрока
 
     constructor(
         scene: Scene,
@@ -13,13 +16,15 @@ export class Projectile {
         y: number,
         targetX: number,
         targetY: number,
-        damage: number
+        damage: number,
+        player: Player
     ) {
         this.scene = scene;
         this.sprite = scene.physics.add.sprite(x, y, 'projectile');
         this.speed = 300;
         this.damage = damage;
         this.destroyed = false;
+        this.player = player;
 
         // Направление движения снаряда
         const angle = Phaser.Math.Angle.Between(x, y, targetX, targetY);
@@ -60,6 +65,16 @@ export class Projectile {
     }
 
     public update(): void {
-        // Дополнительная логика обновления снаряда, если необходимо
+        // Проверяем расстояние от игрока
+        const distance = Phaser.Math.Distance.Between(
+            this.sprite.x,
+            this.sprite.y,
+            this.player.getSprite().x,
+            this.player.getSprite().y
+        );
+
+        if (distance > this.maxDistance) {
+            this.destroy();
+        }
     }
 } 

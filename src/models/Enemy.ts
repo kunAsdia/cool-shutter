@@ -1,16 +1,19 @@
 import { Entity } from './Entity';
 import { Scene } from 'phaser';
+import { Player } from './Player';
 
 export class Enemy extends Entity {
     protected speed: number;
     protected health: number;
     protected damage: number;
+    private player: Player;
 
-    constructor(scene: Scene, x: number, y: number, texture: string) {
+    constructor(scene: Scene, x: number, y: number, texture: string, player: Player) {
         super(scene, x, y, texture);
         this.speed = 100;
         this.health = 100;
         this.damage = 10;
+        this.player = player;
         
         // Set up physics
         scene.physics.world.enable(this.sprite);
@@ -20,9 +23,18 @@ export class Enemy extends Entity {
     }
 
     update(): void {
-        // Basic enemy movement logic
         if (this.sprite.body) {
-            this.sprite.body.velocity.x = this.speed;
+            // Calculate direction to player
+            const angle = Phaser.Math.Angle.Between(
+                this.sprite.x,
+                this.sprite.y,
+                this.player.getSprite().x,
+                this.player.getSprite().y
+            );
+            
+            // Set velocity towards player
+            const velocity = this.scene.physics.velocityFromRotation(angle, this.speed);
+            this.sprite.setVelocity(velocity.x, velocity.y);
         }   
     }
 

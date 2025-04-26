@@ -1,5 +1,4 @@
 import { Scene } from 'phaser';
-import { Player } from './Player';
 
 export class Projectile {
     private scene: Scene;
@@ -7,8 +6,6 @@ export class Projectile {
     private speed: number;
     private damage: number;
     private destroyed: boolean;
-    private player: Player;
-    private maxDistance: number = 500; // Максимальное расстояние от игрока
 
     constructor(
         scene: Scene,
@@ -16,26 +13,32 @@ export class Projectile {
         y: number,
         targetX: number,
         targetY: number,
-        damage: number,
-        player: Player
+        damage: number
     ) {
         this.scene = scene;
         this.sprite = scene.physics.add.sprite(x, y, 'projectile');
-        this.speed = 300;
+        this.speed = 500;
         this.damage = damage;
         this.destroyed = false;
-        this.player = player;
 
         // Направление движения снаряда
         const angle = Phaser.Math.Angle.Between(x, y, targetX, targetY);
         const velocity = this.scene.physics.velocityFromRotation(angle, this.speed);
         this.sprite.setVelocity(velocity.x, velocity.y);
 
-        // Уничтожение снаряда при выходе за пределы экрана
-        this.sprite.setCollideWorldBounds(true);
+        // Делаем снаряд вытянутым
+        this.sprite.setDisplaySize(40, 8); // Увеличиваем размер: ширина 40, высота 8
+        this.sprite.setRotation(angle); // Поворачиваем в направлении движения
+
+        // Добавляем свечение
+        this.sprite.setTint(0x00ff00); // Зеленый цвет для лазера
+        this.sprite.setBlendMode(Phaser.BlendModes.ADD); // Режим наложения для эффекта свечения
+
+        // Настройка физики снаряда
+        this.sprite.setCollideWorldBounds(false); // Отключаем коллизию с границами мира
         this.sprite.setBounce(0);
-        
-        // Правильная настройка границ мира
+
+        // Удаляем обработчик worldbounds, так как он больше не нужен
         if (this.sprite.body) {
             this.sprite.body.world.on('worldbounds', (body: Phaser.Physics.Arcade.Body) => {
                 if (body.gameObject === this.sprite) {
@@ -65,16 +68,18 @@ export class Projectile {
     }
 
     public update(): void {
-        // Проверяем расстояние от игрока
-        const distance = Phaser.Math.Distance.Between(
-            this.sprite.x,
-            this.sprite.y,
-            this.player.getSprite().x,
-            this.player.getSprite().y
-        );
+        // Проверяем выход за границы сцены
+        const sceneWidth = this.scene.game.canvas.width;
+        const sceneHeight = this.scene.game.canvas.height;
+        const margin = 50; // Запас для уничтожения снаряда за пределами сцены
 
-        if (distance > this.maxDistance) {
+        if (this.sprite.x < -margin || 
+            this.sprite.x > sceneWidth + margin || 
+            this.sprite.y < -margin || 
+            this.sprite.y > sceneHeight + margin) {
             this.destroy();
+            return;
         }
+
     }
 } 

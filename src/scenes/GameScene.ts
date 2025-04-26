@@ -11,6 +11,7 @@ export class GameScene extends Scene {
     private collisionService!: CollisionService;
     private gameService!: GameService;
     private healthUI!: HealthUI;
+    private walls!: Phaser.Physics.Arcade.StaticGroup;
     private cursors: {
         W: Phaser.Input.Keyboard.Key;
         A: Phaser.Input.Keyboard.Key;
@@ -36,9 +37,11 @@ export class GameScene extends Scene {
         this.load.image('projectile', 'assets/projectile.svg');
         this.load.image('healthPack', 'assets/healthPack.svg');
         this.load.image('heart', 'assets/heart.svg');
+        
     }
 
     create(): void {
+
         // Создание игрока
         this.player = new Player(this, 400, 300);
         
@@ -56,6 +59,22 @@ export class GameScene extends Scene {
         );
         
         this.gameService = new GameService(this);
+
+        // Настройка коллизий
+        this.physics.add.collider(this.player.getSprite(), this.walls);
+        this.physics.add.collider(this.enemies.map(e => e.getSprite()), this.walls);
+        
+        // Настройка коллизий для снарядов
+        this.physics.add.collider(
+            this.player.getProjectiles().map(p => p.getSprite()),
+            this.walls,
+            (projectileSprite) => {
+                const projectile = this.player.getProjectiles().find(p => p.getSprite() === projectileSprite);
+                if (projectile) {
+                    projectile.destroy();
+                }
+            }
+        );
 
         // Настройка управления
         if (this.input.keyboard) {

@@ -105,8 +105,7 @@ export class Player extends Entity {
             this.sprite.y,
             targetX,
             targetY,
-            this.damage,
-            this
+            this.damage
         );
         this.projectiles.push(projectile);
     }

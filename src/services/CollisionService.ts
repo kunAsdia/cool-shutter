@@ -32,7 +32,7 @@ export class CollisionService {
             
             const enemySprite = enemy.getSprite();
             if (this.scene.physics.overlap(playerSprite, enemySprite)) {
-                console.log('Столкновение игрока с врагом');
+               
                 this.player.takeDamage(enemy.getDamage());
             }
         });
@@ -41,26 +41,23 @@ export class CollisionService {
     private checkProjectileEnemyCollisions(): void {
         this.projectiles.forEach(projectile => {
             if (projectile.isDestroyed()) {
-                console.log('Пропускаем уничтоженный снаряд');
+               
                 return;
             }
 
             const projectileSprite = projectile.getSprite();
-            console.log(`Проверка снаряда на позиции (${projectileSprite.x}, ${projectileSprite.y})`);
             
             this.enemies.forEach(enemy => {
                 if (enemy.isEnemyDead()) return;
                 
                 const enemySprite = enemy.getSprite();
-                console.log(`Проверка столкновения с врагом на позиции (${enemySprite.x}, ${enemySprite.y})`);
                 
                 if (this.scene.physics.overlap(projectileSprite, enemySprite)) {
-                    console.log('Столкновение снаряда с врагом');
-                    console.log(`Нанесение урона ${projectile.getDamage()} врагу`);
-                    enemy.takeDamage(projectile.getDamage());
+                   enemy.takeDamage(projectile.getDamage());
                     projectile.destroy();
                 }
             });
         });
     }
-} 
+    
+}

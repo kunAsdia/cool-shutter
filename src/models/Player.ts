@@ -10,6 +10,9 @@ export class Player extends Entity {
     private isDashing: boolean = false;
     private projectiles: Projectile[] = [];
     protected maxHealth: number = 100;
+    private isInvincible: boolean = false;
+    private invincibilityDuration: number = 1000; // 1 секунда неуязвимости
+    private lastDamageTime: number = 0;
 
     constructor(scene: Scene, x: number, y: number) {
         super(scene, x, y, 'player');
@@ -149,5 +152,29 @@ export class Player extends Entity {
 
     public setDashDuration(value: number): void {
         this.dashDuration = value;
+    }
+
+    public takeDamage(amount: number): void {
+        const now = this.scene.time.now;
+        if (this.isInvincible || now - this.lastDamageTime < this.invincibilityDuration) {
+            return;
+        }
+
+        this.health = Math.max(0, this.health - amount);
+        this.lastDamageTime = now;
+        this.isInvincible = true;
+
+        // Включаем визуальный эффект неуязвимости (мигание)
+        this.sprite.setTint(0xff0000);
+        
+        // Отключаем неуязвимость через заданное время
+        this.scene.time.delayedCall(this.invincibilityDuration, () => {
+            this.isInvincible = false;
+            this.sprite.clearTint();
+        });
+
+        if (this.health <= 0) {
+            this.die();
+        }
     }
 } 

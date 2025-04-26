@@ -3,12 +3,14 @@ import { Player } from '../models/Player';
 import { Enemy } from '../models/Enemy';
 import { CollisionService } from '../services/CollisionService';
 import { GameService } from '../services/GameService';
+import { HealthUI } from '../components/HealthUI';
 
 export class GameScene extends Scene {
     private player!: Player;
     private enemies: Enemy[] = [];
     private collisionService!: CollisionService;
     private gameService!: GameService;
+    private healthUI!: HealthUI;
     private cursors: {
         W: Phaser.Input.Keyboard.Key;
         A: Phaser.Input.Keyboard.Key;
@@ -28,15 +30,20 @@ export class GameScene extends Scene {
     }
 
     preload(): void {
-        // Загрузка ресурсов
-        this.load.svg('player', './assets/images/player.svg');
-        this.load.svg('enemy', './assets/images/enemy.svg');
-        this.load.svg('projectile', './assets/images/projectile.svg');
+        // Загрузка текстур
+        this.load.image('player', 'assets/player.svg');
+        this.load.image('enemy', 'assets/enemy.svg');
+        this.load.image('projectile', 'assets/projectile.svg');
+        this.load.image('healthPack', 'assets/healthPack.svg');
+        this.load.image('heart', 'assets/heart.svg');
     }
 
     create(): void {
         // Создание игрока
         this.player = new Player(this, 400, 300);
+        
+        // Создание UI здоровья
+        this.healthUI = new HealthUI(this, this.player);
         
         // Инициализация врагов
         this.enemies = [];
@@ -85,6 +92,9 @@ export class GameScene extends Scene {
         // Обновление сервисов
         this.collisionService.update();
         this.gameService.update();
+        
+        // Обновление UI здоровья
+        this.healthUI.update();
 
         // Спавн новых врагов
         if (this.gameService.shouldSpawnEnemy()) {

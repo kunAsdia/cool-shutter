@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <!-- Энергетический снаряд -->
+    <circle cx="16" cy="16" r="8" fill="#00ffff" opacity="0.6"/>
+    <circle cx="16" cy="16" r="6" fill="#ffffff" opacity="0.8"/>
+    <circle cx="16" cy="16" r="4" fill="#00ffff"/>
+    
+    <!-- Свечение -->
+    <circle cx="16" cy="16" r="12" fill="none" stroke="#00ffff" stroke-width="2" opacity="0.3"/>
+</svg> 

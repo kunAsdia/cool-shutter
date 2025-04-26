@@ -2,6 +2,8 @@ import { GameScene } from './scenes/GameScene';
 import { UpgradeScene } from './scenes/UpgradeScene';
 import { GameOverScene } from './scenes/GameOverScene';
 
+let game: Phaser.Game | null = null;
+
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     width: 1280,
@@ -17,8 +19,6 @@ const config: Phaser.Types.Core.GameConfig = {
     parent: 'game-container'
 };
 
-const game = new Phaser.Game(config);
-
 // Обработчик кнопки старта
 document.getElementById('start-button')?.addEventListener('click', () => {
     const menu = document.getElementById('menu');
@@ -26,6 +26,11 @@ document.getElementById('start-button')?.addEventListener('click', () => {
     
     if (menu) menu.style.display = 'none';
     if (gameContainer) gameContainer.style.visibility = 'visible';
+    
+    // Создаем игру только при нажатии кнопки
+    if (!game) {
+        game = new Phaser.Game(config);
+    }
     
     game.scene.start('GameScene');
 }); 

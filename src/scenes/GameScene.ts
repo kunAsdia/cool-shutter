@@ -25,6 +25,8 @@ export class GameScene extends Scene {
     };
     private spaceKey!: Phaser.Input.Keyboard.Key;
     private shiftKey!: Phaser.Input.Keyboard.Key;
+    private escKey!: Phaser.Input.Keyboard.Key;
+    private isPaused: boolean = false;
 
     constructor() {
         super({ key: 'GameScene' });
@@ -41,7 +43,6 @@ export class GameScene extends Scene {
     }
 
     create(): void {
-
         // Создание игрока
         this.player = new Player(this, 400, 300);
         
@@ -86,6 +87,20 @@ export class GameScene extends Scene {
             };
             
             this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+            this.escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+            
+            // Добавляем обработчик для клавиши ESC
+            this.escKey.on('down', () => {
+                if (!this.isPaused) {
+                    this.isPaused = true;
+                    this.addPauseOverlay();
+                    this.physics.pause();
+                } else {
+                    this.isPaused = false;
+                    this.removePauseOverlay();
+                    this.physics.resume();
+                }
+            });
         }
 
         // Настройка мыши
@@ -97,6 +112,8 @@ export class GameScene extends Scene {
     }
 
     update(): void {
+        if (this.isPaused) return;
+
         // Обновление игрока
         this.player.move(this.cursors);
         
@@ -126,5 +143,40 @@ export class GameScene extends Scene {
         const y = Phaser.Math.Between(0, this.game.canvas.height);
         const enemy = new Enemy(this, x, y, 'enemy', this.player);
         this.enemies.push(enemy);
+    }
+
+    private addPauseOverlay(): void {
+        const overlay = this.add.rectangle(0, 0, this.game.canvas.width, this.game.canvas.height, 0x000000, 0.5);
+        overlay.setOrigin(0);
+        overlay.setScrollFactor(0);
+        
+        const pauseText = this.add.text(
+            this.game.canvas.width / 2,
+            this.game.canvas.height / 2,
+            'ПАУЗА',
+            {
+                fontSize: '64px',
+                color: '#ffffff',
+                fontFamily: 'Arial'
+            }
+        );
+        pauseText.setOrigin(0.5);
+        pauseText.setScrollFactor(0);
+        
+        overlay.setData('pauseText', pauseText);
+        this.add.existing(overlay);
+    }
+
+    private removePauseOverlay(): void {
+        const overlays = this.children.list.filter(child => 
+            child instanceof Phaser.GameObjects.Rectangle && 
+            child.getData('pauseText')
+        );
+        
+        overlays.forEach(overlay => {
+            const pauseText = overlay.getData('pauseText');
+            pauseText.destroy();
+            overlay.destroy();
+        });
     }
 } 

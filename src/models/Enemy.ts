@@ -57,6 +57,11 @@ export class Enemy extends Entity {
         this.health -= amount;
         if (this.health <= 0) {
             this.die();
+            // Начисляем 100 очков за убийство врага
+            const gameScene = this.scene as any;
+            if (gameScene.addScore) {
+                gameScene.addScore(100);
+            }
         }
     }
 

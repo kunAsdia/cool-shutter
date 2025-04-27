@@ -96,6 +96,18 @@ export class Player extends Entity {
         velocity.scale(this.speed);
 
         this.sprite.setVelocity(velocity.x, velocity.y);
+
+        // Поворот к курсору мыши
+        const pointer = this.scene.input.activePointer;
+        const angle = Phaser.Math.Angle.Between(
+            this.sprite.x,
+            this.sprite.y,
+            pointer.worldX,
+            pointer.worldY
+        );
+        
+        // Конвертируем угол в градусы и устанавливаем поворот
+        this.sprite.setRotation(angle + Math.PI / 2);
     }
 
     public shoot(targetX: number, targetY: number): void {

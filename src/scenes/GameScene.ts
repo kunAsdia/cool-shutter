@@ -4,14 +4,17 @@ import { Enemy } from '../models/Enemy';
 import { CollisionService } from '../services/CollisionService';
 import { GameService } from '../services/GameService';
 import { HealthUI } from '../components/HealthUI';
+import { RangedEnemy } from '../models/RangedEnemy';
 
 export class GameScene extends Scene {
     private player!: Player;
-    private enemies: Enemy[] = [];
+    private enemies: (Enemy | RangedEnemy)[] = [];
     private collisionService!: CollisionService;
     private gameService!: GameService;
     private healthUI!: HealthUI;
     private walls!: Phaser.Physics.Arcade.StaticGroup;
+    private score: number = 0;
+    private scoreText!: Phaser.GameObjects.Text;
     private cursors: {
         W: Phaser.Input.Keyboard.Key;
         A: Phaser.Input.Keyboard.Key;
@@ -24,7 +27,6 @@ export class GameScene extends Scene {
         D: {} as Phaser.Input.Keyboard.Key
     };
     private spaceKey!: Phaser.Input.Keyboard.Key;
-    private shiftKey!: Phaser.Input.Keyboard.Key;
     private escKey!: Phaser.Input.Keyboard.Key;
     private isPaused: boolean = false;
 
@@ -36,7 +38,9 @@ export class GameScene extends Scene {
         // Загрузка текстур
         this.load.image('player', 'assets/player.svg');
         this.load.image('enemy', 'assets/enemy.svg');
+        this.load.image('rangedEnemy', 'assets/rangedEnemy.svg');
         this.load.image('projectile', 'assets/projectile.svg');
+        this.load.image('enemyProjectile', 'assets/enemyProjectile.svg');
         this.load.image('healthPack', 'assets/healthPack.svg');
         this.load.image('heart', 'assets/heart.svg');
         
@@ -48,6 +52,15 @@ export class GameScene extends Scene {
         
         // Создание UI здоровья
         this.healthUI = new HealthUI(this, this.player);
+        
+        // Создание текста счета
+        this.scoreText = this.add.text(this.game.canvas.width - 16, 16, 'Очки: 0', {
+            fontSize: '32px',
+            color: '#ffffff',
+            fontFamily: 'Arial'
+        });
+        this.scoreText.setScrollFactor(0);
+        this.scoreText.setOrigin(1, 0);
         
         // Инициализация врагов
         this.enemies = [];
@@ -138,11 +151,23 @@ export class GameScene extends Scene {
         }
     }
 
+    public addScore(points: number): void {
+        this.score += points;
+        this.scoreText.setText(`Очки: ${this.score}`);
+    }
+
     private spawnEnemy(): void {
         const x = Phaser.Math.Between(0, this.game.canvas.width);
         const y = Phaser.Math.Between(0, this.game.canvas.height);
-        const enemy = new Enemy(this, x, y, 'enemy', this.player);
-        this.enemies.push(enemy);
+        
+        // 20% шанс появления стреляющего врага
+        if (Math.random() < 0.2) {
+            const rangedEnemy = new RangedEnemy(this, x, y, this.player);
+            this.enemies.push(rangedEnemy);
+        } else {
+            const enemy = new Enemy(this, x, y, 'enemy', this.player);
+            this.enemies.push(enemy);
+        }
     }
 
     private addPauseOverlay(): void {

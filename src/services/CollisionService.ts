@@ -1,15 +1,16 @@
 import { Player } from '../models/Player';
 import { Enemy } from '../models/Enemy';
+import { RangedEnemy } from '../models/RangedEnemy';
 import { Projectile } from '../models/Projectile';
 import { Scene } from 'phaser';
 
 export class CollisionService {
     private player: Player;
-    private enemies: Enemy[];
+    private enemies: (Enemy | RangedEnemy)[];
     private projectiles: Projectile[];
     private scene: Scene;
 
-    constructor(player: Player, enemies: Enemy[], projectiles: Projectile[]) {
+    constructor(player: Player, enemies: (Enemy | RangedEnemy)[], projectiles: Projectile[]) {
         this.player = player;
         this.enemies = enemies;
         this.projectiles = projectiles;

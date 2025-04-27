@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+    <!-- Main body -->
+    <rect x="50" y="50" width="100" height="60" fill="#4a4a4a" rx="10"/>
+    
+    <!-- Bridge -->
+    <rect x="80" y="30" width="40" height="20" fill="#6a6a6a" rx="5"/>
+    
+    <!-- Windows -->
+    <circle cx="70" cy="80" r="5" fill="#88ccff"/>
+    <circle cx="90" cy="80" r="5" fill="#88ccff"/>
+    <circle cx="110" cy="80" r="5" fill="#88ccff"/>
+    <circle cx="130" cy="80" r="5" fill="#88ccff"/>
+    
+    <!-- Bridge windows -->
+    <circle cx="90" cy="40" r="3" fill="#88ccff"/>
+    <circle cx="110" cy="40" r="3" fill="#88ccff"/>
+    
+    <!-- Engines -->
+    <rect x="40" y="70" width="10" height="20" fill="#ff4444"/>
+    <rect x="150" y="70" width="10" height="20" fill="#ff4444"/>
+    
+    <!-- Decorative elements -->
+    <path d="M60,50 L60,30 L80,30 L80,50" fill="#8a8a8a"/>
+    <path d="M120,50 L120,30 L140,30 L140,50" fill="#8a8a8a"/>
+</svg> 

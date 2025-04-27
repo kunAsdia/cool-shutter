@@ -9,7 +9,6 @@ export class Player extends Entity {
     private lastDashTime: number = 0;
     private isDashing: boolean = false;
     private projectiles: Projectile[] = [];
-    protected maxHealth: number = 100;
     private isInvincible: boolean = false;
     private invincibilityDuration: number = 1000; // 1 секунда неуязвимости
     private lastDamageTime: number = 0;
@@ -18,7 +17,8 @@ export class Player extends Entity {
         super(scene, x, y, 'player');
         this.speed = 200;
         this.health = 100;
-        this.damage = 10;
+        this.maxHealth = 100;
+        this.damage = 20;
 
         // Настройка физики игрока
         this.sprite.setCollideWorldBounds(true);
@@ -187,5 +187,14 @@ export class Player extends Entity {
         if (this.health <= 0) {
             this.die();
         }
+    }
+
+    public increaseMaxHealth(amount: number): void {
+        this.maxHealth += amount;
+        this.health += amount;
+    }
+
+    public increaseDamage(amount: number): void {
+        this.damage += amount;
     }
 } 

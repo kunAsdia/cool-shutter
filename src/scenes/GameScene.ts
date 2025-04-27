@@ -5,6 +5,7 @@ import { CollisionService } from '../services/CollisionService';
 import { GameService } from '../services/GameService';
 import { HealthUI } from '../components/HealthUI';
 import { RangedEnemy } from '../models/RangedEnemy';
+import { MerchantShip } from '../models/MerchantShip';
 
 export class GameScene extends Scene {
     private player!: Player;
@@ -15,6 +16,9 @@ export class GameScene extends Scene {
     private walls!: Phaser.Physics.Arcade.StaticGroup;
     private score: number = 0;
     private scoreText!: Phaser.GameObjects.Text;
+    private merchantShip: MerchantShip | null = null;
+    private shopThreshold: number = 1000; // Очки, необходимые для появления магазина
+    private shopActive: boolean = false;
     private cursors: {
         W: Phaser.Input.Keyboard.Key;
         A: Phaser.Input.Keyboard.Key;
@@ -28,6 +32,7 @@ export class GameScene extends Scene {
     };
     private spaceKey!: Phaser.Input.Keyboard.Key;
     private escKey!: Phaser.Input.Keyboard.Key;
+    private enterKey!: Phaser.Input.Keyboard.Key;
     private isPaused: boolean = false;
 
     constructor() {
@@ -43,7 +48,7 @@ export class GameScene extends Scene {
         this.load.image('enemyProjectile', 'assets/enemyProjectile.svg');
         this.load.image('healthPack', 'assets/healthPack.svg');
         this.load.image('heart', 'assets/heart.svg');
-        
+        this.load.image('merchantShip', 'assets/merchantShip.svg');
     }
 
     create(): void {
@@ -101,6 +106,7 @@ export class GameScene extends Scene {
             
             this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
             this.escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+            this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
             
             // Добавляем обработчик для клавиши ESC
             this.escKey.on('down', () => {
@@ -149,16 +155,50 @@ export class GameScene extends Scene {
         if (this.gameService.shouldSpawnEnemy()) {
             this.spawnEnemy();
         }
-    }
 
-    public addScore(points: number): void {
-        this.score += points;
-        this.scoreText.setText(`Очки: ${this.score}`);
+        // Проверка появления магазина
+        if (this.score >= this.shopThreshold && !this.shopActive) {
+            this.spawnMerchantShip();
+        }
+
+        // Обработка ввода для магазина
+        if (this.merchantShip) {
+            if (this.cursors.W.isDown) {
+                this.merchantShip.handleInput('W');
+            }
+            if (this.cursors.S.isDown) {
+                this.merchantShip.handleInput('S');
+            }
+            if (this.enterKey.isDown) {
+                this.merchantShip.handleInput('ENTER');
+            }
+        }
     }
 
     private spawnEnemy(): void {
-        const x = Phaser.Math.Between(0, this.game.canvas.width);
-        const y = Phaser.Math.Between(0, this.game.canvas.height);
+        // Определяем, с какой стороны экрана появится враг (0: верх, 1: право, 2: низ, 3: лево)
+        const side = Phaser.Math.Between(0, 3);
+        let x = 0;
+        let y = 0;
+
+        switch (side) {
+            case 0: // Верх
+                x = Phaser.Math.Between(0, this.game.canvas.width);
+                y = -50;
+                break;
+            case 1: // Право
+                x = this.game.canvas.width + 50;
+                y = Phaser.Math.Between(0, this.game.canvas.height);
+                break;
+            case 2: // Низ
+                x = Phaser.Math.Between(0, this.game.canvas.width);
+                y = this.game.canvas.height + 50;
+                break;
+            case 3: // Лево
+                x = -50;
+                y = Phaser.Math.Between(0, this.game.canvas.height);
+                break;
+        }
         
         // 20% шанс появления стреляющего врага
         if (Math.random() < 0.2) {
@@ -168,6 +208,73 @@ export class GameScene extends Scene {
             const enemy = new Enemy(this, x, y, 'enemy', this.player);
             this.enemies.push(enemy);
         }
+    }
+
+    private spawnMerchantShip(): void {
+        this.shopActive = true;
+        
+        // Удаляем всех врагов
+        this.enemies.forEach(enemy => {
+            if (!enemy.isEnemyDead()) {
+                enemy.getSprite().destroy();
+            }
+        });
+        this.enemies = [];
+
+        // Создаем торговый корабль за пределами экрана
+        const side = Phaser.Math.Between(0, 3);
+        let x = 0;
+        let y = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        switch (side) {
+            case 0: // Верх
+                x = Phaser.Math.Between(0, this.game.canvas.width);
+                y = -200;
+                targetX = x;
+                targetY = 100;
+                break;
+            case 1: // Право
+                x = this.game.canvas.width + 200;
+                y = Phaser.Math.Between(0, this.game.canvas.height);
+                targetX = this.game.canvas.width - 100;
+                targetY = y;
+                break;
+            case 2: // Низ
+                x = Phaser.Math.Between(0, this.game.canvas.width);
+                y = this.game.canvas.height + 200;
+                targetX = x;
+                targetY = this.game.canvas.height - 100;
+                break;
+            case 3: // Лево
+                x = -200;
+                y = Phaser.Math.Between(0, this.game.canvas.height);
+                targetX = 100;
+                targetY = y;
+                break;
+        }
+
+        // Создаем торговый корабль
+        this.merchantShip = new MerchantShip(this, x, y, this.player);
+        
+        // Добавляем анимацию въезда
+        this.tweens.add({
+            targets: this.merchantShip.getSprite(),
+            x: targetX,
+            y: targetY,
+            duration: 2000,
+            ease: 'Power2'
+        });
+    }
+
+    public addScore(amount: number): void {
+        this.score += amount;
+        this.scoreText.setText(`Очки: ${this.score}`);
+    }
+
+    public getScore(): number {
+        return this.score;
     }
 
     private addPauseOverlay(): void {
